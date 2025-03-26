@@ -2,6 +2,8 @@ package edumdev;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, World!");
+        DBConnection db = new DBConnection();
+        db.connect();
+        db.close();
     }
 }
