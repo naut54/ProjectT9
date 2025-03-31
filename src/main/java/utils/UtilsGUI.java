@@ -16,4 +16,12 @@ public class UtilsGUI {
             action.run();
         }
     }
+
+    public static void setupStyles() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -3,14 +3,23 @@ package gui;
 import utils.Styles;
 import utils.UtilsGUI;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 import static utils.Styles.createStyledButton;
 
 public class MainPanel extends JPanel {
+    private final String[] columnNames = {
+            "Código", "Nombre", "Descripcion", "Precio Entrada", "Categoria"
+    };
     private JPanel quickAccessPanel;
     private JPanel buttonsPanel;
+    private JPanel moviesTablePanel;
+    private JTable moviesTable;
+    private DefaultTableModel model;
     private final Color MENU_COLOR = new Color(230, 230, 230);
+    private final Color BUTTON_COLOR = new Color(5, 189, 12);
+    private final Color BUTTON_COLOR_HOVER = new Color(5, 165, 11);
     private final MainWindow mainWindow;
 
     public MainPanel(MainWindow mainWindow) {
@@ -19,6 +28,8 @@ public class MainPanel extends JPanel {
         UtilsGUI.createComponents(
                 this::createQuickAccessPanel
         );
+        layoutPanels();
+        UtilsGUI.setupStyles();
     }
 
     private void createQuickAccessPanel() {
@@ -43,11 +54,11 @@ public class MainPanel extends JPanel {
         for (Object[] quickAccessButton : quickAccessButtons) {
             String buttonName = (String) quickAccessButton[0];
 
-            JButton button = createStyledButton(buttonName, MENU_COLOR, 150, 60, MENU_COLOR);
+            JButton button = createStyledButton(buttonName, BUTTON_COLOR, 150, 60, BUTTON_COLOR_HOVER);
             //button.addActionListener(e -> action.run());
 
             button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            Styles.setSizeButton(button, 150, 60);
+            Styles.setSizeButton(button, 300, 120);
 
             gbc.gridx = col;
             gbc.gridy = row;
@@ -59,5 +70,27 @@ public class MainPanel extends JPanel {
                 row++;
             }
         }
+    }
+
+    private void createMoviesTable(Object[][] data) {
+        moviesTablePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        this.model = new DefaultTableModel();
+    }
+
+    private void deleteRow(int row) {
+        quickAccessPanel.remove(row);
+    }
+
+    private void layoutPanels() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+
+        gbc.gridx = 0;
+        gbc.weightx = 1.0;
+        add(quickAccessPanel, gbc);
     }
 }
