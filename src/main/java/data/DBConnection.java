@@ -1,4 +1,4 @@
-package edumdev;
+package data;
 
 import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
