@@ -1,5 +1,7 @@
 package gui;
 
+import data.PeliculaDAO;
+import models.PeliculaRedesign;
 import utils.Styles;
 import utils.UtilsGUI;
 import javax.swing.*;
@@ -29,10 +31,45 @@ public class MainPanel extends JPanel {
         UtilsGUI.initPanel(this);
         UtilsGUI.createComponents(
                 this::createQuickAccessPanel,
-                this::createMoviesTable
+                this::createMoviesTable,
+                this::createMenuBar
         );
         layoutPanels();
         UtilsGUI.setupStyles();
+    }
+
+    private void createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setBackground(MENU_COLOR);
+        menuBar.setOpaque(true);
+
+        JMenu configMenu = new JMenu("Configuración");
+        JMenu viewMenu = new JMenu("Ver");
+        JMenu helpMenu = new JMenu("Ayuda");
+
+        configMenu.setForeground(Color.WHITE);
+        viewMenu.setForeground(Color.WHITE);
+        helpMenu.setForeground(Color.WHITE);
+
+        configMenu.add(createMenuItem("Cargar Datos"));
+        configMenu.add(createMenuItem("Guardar Datos"));
+        configMenu.add(createMenuItem("Borrar Datos"));
+
+        viewMenu.add(createMenuItem("Consulta Rápida"));
+
+        helpMenu.add(createMenuItem("Acerca de"));
+
+        menuBar.add(configMenu);
+        menuBar.add(viewMenu);
+        menuBar.add(helpMenu);
+
+        mainWindow.setJMenuBar(menuBar);
+    }
+
+    private JMenuItem createMenuItem(String text) {
+        JMenuItem item = new JMenuItem(text);
+        Styles.setItemStyle(item);
+        return item;
     }
 
     private void createQuickAccessPanel() {
@@ -41,10 +78,10 @@ public class MainPanel extends JPanel {
         System.out.println("Creating QuickAccessPanel");
 
         Object[][] quickAccessButtons = {
-                {"Alta Pelicula"},
-                {"Baja Pelicula"},
-                {"Consultar Peliculas"},
-                {"Actualizar Pelicula"}
+                {"Alta Pelicula", (Runnable) () -> mainWindow.showPanel("addMovie")},
+                {"Baja Pelicula", (Runnable) () -> mainWindow.showPanel("deleteMovie")},
+                {"Consultar Peliculas", (Runnable) () -> mainWindow.showPanel("searchMovie")},
+                {"Actualizar Pelicula", (Runnable) () -> mainWindow.showPanel("updateMovie")},
         };
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -57,9 +94,10 @@ public class MainPanel extends JPanel {
 
         for (Object[] quickAccessButton : quickAccessButtons) {
             String buttonName = (String) quickAccessButton[0];
+            Runnable action = (Runnable) quickAccessButton[1];
 
             JButton button = createStyledButton(buttonName, BUTTON_COLOR, 150, 60, BUTTON_COLOR_HOVER);
-            //button.addActionListener(e -> action.run());
+            button.addActionListener(e -> action.run());
 
             button.setCursor(new Cursor(Cursor.HAND_CURSOR));
             Styles.setSizeButton(button, 300, 120);
@@ -147,16 +185,45 @@ public class MainPanel extends JPanel {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         moviesTablePanel.add(scrollPane, gbc);
+        updateTable();
     }
 
     private void updateTable() {
-        Object[][] data = new Object[0][0];
-        if (this.columnNames != null) {
-            System.out.println("Data is not null");
-        } else {
-            System.out.println("Data is null");
-        }
+        try {
+            this.model.setRowCount(0);
 
+            PeliculaDAO peliculaDAO = new PeliculaDAO();
+            List peliculas = (List) peliculaDAO.getAllMovies();
+
+            if (peliculas == null || ((java.util.List<?>) peliculas).isEmpty()) {
+                System.out.println("No se encontraron películas en la base de datos");
+                return;
+            }
+
+            // Arreglar, peliculas.size() devuelve un Dimension en vez de un int
+
+            Object[][] data = new Object[peliculas.size()][];
+            for (int i = 0; i < peliculas.size(); i++) {
+                PeliculaRedesign pelicula = (PeliculaRedesign) ((java.util.List<?>) peliculas).get(i);
+                data[i] = new Object[]{
+                        pelicula.getId(),
+                        pelicula.getTitulo(),
+                        pelicula.getPrecio()
+                };
+            }
+
+            for (Object[] row : data) {
+                this.model.addRow(row);
+            }
+
+            System.out.println("Se cargaron " + peliculas.size() + " películas en la tabla");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar películas: " + e.getMessage(),
+                    "Error de carga",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void getSelectedMovie() {

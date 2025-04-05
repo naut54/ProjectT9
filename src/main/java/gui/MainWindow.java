@@ -27,6 +27,7 @@ public class MainWindow extends JFrame {
 
     private void innitPanels() {
         contentPanel.add(new MainPanel(this), "mainPanel");
+        contentPanel.add(new AddMovie(this), "addMovie");
 
         cardLayout.show(contentPanel, "mainPanel");
         pack();
@@ -42,5 +43,9 @@ public class MainWindow extends JFrame {
         }
         cardLayout.show(contentPanel, panelName);
         pack();
+    }
+
+    public void showMainPanel() {
+        showPanel("mainPanel");
     }
 }

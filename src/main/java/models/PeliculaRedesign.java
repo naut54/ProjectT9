@@ -8,7 +8,7 @@ public class PeliculaRedesign {
     private int id;
     private String titulo;
     private String director;
-    private double duracion;
+    private int duracion;
     private double precio;
     private enum categoria{
         COMEDIA,
@@ -18,7 +18,7 @@ public class PeliculaRedesign {
         AVENTURA
     };
 
-    public PeliculaRedesign(int id, String titulo, String director, double duracion, double precio) {
+    public PeliculaRedesign(int id, String titulo, String director, int duracion, double precio) {
         if (Validate.isInteger(String.valueOf(id)) &&
                 Validate.isString(titulo) &&
                 Validate.isString(director) &&
