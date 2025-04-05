@@ -28,6 +28,7 @@ public class MainWindow extends JFrame {
     private void innitPanels() {
         contentPanel.add(new MainPanel(this), "mainPanel");
         contentPanel.add(new AddMovie(this), "addMovie");
+        contentPanel.add(new SearchMovies(this), "searchMovies");
 
         cardLayout.show(contentPanel, "mainPanel");
         pack();

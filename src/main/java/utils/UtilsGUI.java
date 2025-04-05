@@ -24,4 +24,12 @@ public class UtilsGUI {
             e.printStackTrace();
         }
     }
+
+    public static void showInfoMessage(String s, String sinResultados) {
+        JOptionPane.showMessageDialog(null, s, sinResultados, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void showErrorMessage(String s, String errorDeBusqueda) {
+        JOptionPane.showMessageDialog(null, s, errorDeBusqueda, JOptionPane.ERROR_MESSAGE);
+    }
 }

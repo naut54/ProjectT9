@@ -19,17 +19,11 @@ public class PeliculaRedesign {
     };
 
     public PeliculaRedesign(int id, String titulo, String director, int duracion, double precio) {
-        if (Validate.isInteger(String.valueOf(id)) &&
-                Validate.isString(titulo) &&
-                Validate.isString(director) &&
-                Validate.isDouble(String.valueOf(duracion)) &&
-                Validate.isDouble(String.valueOf(precio))) {
-            this.id = id;
-            this.titulo = titulo;
-            this.director = director;
-            this.duracion = duracion;
-            this.precio = precio;
-        }
+        this.id = id;
+        this.titulo = titulo;
+        this.director = director;
+        this.duracion = duracion;
+        this.precio = precio;
     }
 
     public int getId() {

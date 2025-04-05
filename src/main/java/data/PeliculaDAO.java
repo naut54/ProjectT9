@@ -1,7 +1,5 @@
 package data;
 
-import com.db4o.ObjectSet;
-import com.db4o.query.Predicate;
 import models.PeliculaRedesign;
 
 import java.util.ArrayList;
@@ -14,8 +12,8 @@ public class PeliculaDAO {
         dao = new DataAccessObject();
     }
 
-    public static void storeMovie(PeliculaRedesign movie) {
-        dao.storeObject(movie);
+    public static boolean storeMovie(PeliculaRedesign movie) {
+        return dao.storeObject(movie);
     }
 
     public boolean updateMovie(PeliculaRedesign movie) {
@@ -27,14 +25,9 @@ public class PeliculaDAO {
     }
 
     public PeliculaRedesign searchById(final int id) {
-        ObjectSet<PeliculaRedesign> result = dao.retrieveWithCondition(PeliculaRedesign.class,
-                new Predicate<PeliculaRedesign>() {
-                    public boolean match(PeliculaRedesign pelicula) {
-                        return pelicula.getId() == id;
-                    }
-                });
-
-        return result != null && result.hasNext() ? result.next() : null;
+        // Usamos consulta SODA en lugar de Predicate
+        List<PeliculaRedesign> results = dao.retrieveByFieldValue(PeliculaRedesign.class, "id", id);
+        return !results.isEmpty() ? results.get(0) : null;
     }
 
     /**
@@ -44,21 +37,7 @@ public class PeliculaDAO {
      * o ocurre un error.
      */
     public List<PeliculaRedesign> getAllMovies() {
-        ObjectSet<PeliculaRedesign> result = dao.retrieveWithCondition(PeliculaRedesign.class,
-                new Predicate<PeliculaRedesign>() {
-                    public boolean match(PeliculaRedesign pelicula) {
-                        return true; // Devuelve todas las películas
-                    }
-                });
-
-        List<PeliculaRedesign> movies = new ArrayList<>();
-        if (result != null) {
-            while (result.hasNext()) {
-                movies.add(result.next());
-            }
-        }
-
-        return movies;
+        return dao.retrieveAllObjects(PeliculaRedesign.class);
     }
 
     /**
@@ -75,21 +54,17 @@ public class PeliculaDAO {
 
         final String term = searchTerm.toLowerCase();
 
-        ObjectSet<PeliculaRedesign> result = dao.retrieveWithCondition(PeliculaRedesign.class,
-                new Predicate<PeliculaRedesign>() {
-                    public boolean match(PeliculaRedesign pelicula) {
-                        return pelicula.getTitulo().toLowerCase().contains(term) ||
-                                pelicula.getDirector().toLowerCase().contains(term);
-                    }
-                });
+        // Recuperamos todas las películas y filtramos manualmente
+        List<PeliculaRedesign> allMovies = getAllMovies();
+        List<PeliculaRedesign> results = new ArrayList<>();
 
-        List<PeliculaRedesign> movies = new ArrayList<>();
-        if (result != null) {
-            while (result.hasNext()) {
-                movies.add(result.next());
+        for (PeliculaRedesign pelicula : allMovies) {
+            if (pelicula.getTitulo().toLowerCase().contains(term) ||
+                    pelicula.getDirector().toLowerCase().contains(term)) {
+                results.add(pelicula);
             }
         }
 
-        return movies;
+        return results;
     }
 }

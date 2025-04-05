@@ -75,13 +75,13 @@ public class MainPanel extends JPanel {
     private void createQuickAccessPanel() {
         quickAccessPanel = new JPanel(new GridBagLayout());
         quickAccessPanel.setBorder(BorderFactory.createTitledBorder("Accesos Rapidos"));
-        System.out.println("Creating QuickAccessPanel");
 
         Object[][] quickAccessButtons = {
                 {"Alta Pelicula", (Runnable) () -> mainWindow.showPanel("addMovie")},
-                {"Baja Pelicula", (Runnable) () -> mainWindow.showPanel("deleteMovie")},
-                {"Consultar Peliculas", (Runnable) () -> mainWindow.showPanel("searchMovie")},
+                {"Baja Pelicula", (Runnable) this::deleteAction},
+                {"Consultar Peliculas", (Runnable) () -> mainWindow.showPanel("searchMovies")},
                 {"Actualizar Pelicula", (Runnable) () -> mainWindow.showPanel("updateMovie")},
+                {"Actualizar Datos", (Runnable) this::updateTable},
         };
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -114,23 +114,31 @@ public class MainPanel extends JPanel {
         }
     }
 
+    private void deleteAction() {
+        int row = moviesTable.getSelectedRow();
+        if (row == -1) {
+            return;
+        }
+
+        Object firstValue = moviesTable.getValueAt(row, 0);
+
+        deleteMovie(Integer.parseInt(firstValue.toString()));
+
+        model.removeRow(row);
+        updateTable();
+    }
+
     private void createMoviesTable() {
         moviesTablePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        System.out.println("Creating MoviesTablePanel");
         Object[][] data = new Object[0][0];
-        if (this.columnNames != null) {
-            System.out.println("Data is not null");
-        } else {
-            System.out.println("Data is null");
+        if (this.columnNames == null) {
             return;
         }
 
         if (this.MENU_COLOR == null || this.FONT_COLOR == null || this.BUTTON_COLOR == null || this.BUTTON_COLOR_HOVER == null) {
             System.out.println("Colors are null");
             return;
-        } else {
-            System.out.println("Colors are not null");
         }
 
         this.model = new DefaultTableModel(columnNames, 0) {
@@ -193,30 +201,26 @@ public class MainPanel extends JPanel {
             this.model.setRowCount(0);
 
             PeliculaDAO peliculaDAO = new PeliculaDAO();
-            List peliculas = (List) peliculaDAO.getAllMovies();
+            java.util.List<PeliculaRedesign> peliculas = peliculaDAO.getAllMovies();
 
-            if (peliculas == null || ((java.util.List<?>) peliculas).isEmpty()) {
+            if (peliculas == null || peliculas.isEmpty()) {
                 System.out.println("No se encontraron películas en la base de datos");
                 return;
             }
 
-            // Arreglar, peliculas.size() devuelve un Dimension en vez de un int
-
             Object[][] data = new Object[peliculas.size()][];
             for (int i = 0; i < peliculas.size(); i++) {
-                PeliculaRedesign pelicula = (PeliculaRedesign) ((java.util.List<?>) peliculas).get(i);
+                PeliculaRedesign pelicula = peliculas.get(i);
                 data[i] = new Object[]{
                         pelicula.getId(),
                         pelicula.getTitulo(),
-                        pelicula.getPrecio()
+                        pelicula.getPrecio(),
                 };
             }
 
             for (Object[] row : data) {
                 this.model.addRow(row);
             }
-
-            System.out.println("Se cargaron " + peliculas.size() + " películas en la tabla");
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
@@ -234,8 +238,10 @@ public class MainPanel extends JPanel {
         model.getValueAt(row, 0);
     }
 
-    private void deleteRow(int row) {
-        quickAccessPanel.remove(row);
+    private boolean deleteMovie(int num) {
+        PeliculaDAO pel = new PeliculaDAO();
+        PeliculaRedesign stmt = new PeliculaRedesign(num, null, null, 0, 0);
+        return pel.deleteMovie(stmt);
     }
 
     private void layoutPanels() {

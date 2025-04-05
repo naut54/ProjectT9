@@ -43,15 +43,15 @@ public class Validate {
     }
 
     /**
-     * Verifica si una cadena dada contiene solo caracteres alfabéticos (letras mayúsculas o minúsculas).
+     * Verifica si una cadena no es nula y no está vacía después de eliminar espacios en blanco
+     * al inicio y al final.
      *
      * @param str La cadena a verificar.
-     * @return true si la cadena contiene únicamente letras (a-z, A-Z), de lo contrario, false.
-     *
-     * @since 16
+     * @return true si la cadena no es nula y no está vacía después de recortar los espacios,
+     *         de lo contrario, false.
      */
     public static boolean isString(String str) {
-        return str.matches("[a-zA-Z]+");
+        return str != null && !str.trim().isEmpty();
     }
 
     /**

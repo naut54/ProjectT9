@@ -221,9 +221,10 @@ public class AddMovie extends JPanel {
             return;
         }
 
+        int duracion;
         try {
             if (!durationField.getText().trim().isEmpty()) {
-                Integer.parseInt(durationField.getText().trim());
+                duracion = Integer.parseInt(durationField.getText().trim());
             } else {
                 JOptionPane.showMessageDialog(this,
                         "La duración es obligatoria",
@@ -241,9 +242,10 @@ public class AddMovie extends JPanel {
             return;
         }
 
+        double precio;
         try {
             if (!priceField.getText().trim().isEmpty()) {
-                Double.parseDouble(priceField.getText().trim());
+                precio = Double.parseDouble(priceField.getText().trim());
             } else {
                 JOptionPane.showMessageDialog(this,
                         "El precio es obligatorio",
@@ -261,14 +263,37 @@ public class AddMovie extends JPanel {
             return;
         }
 
-        PeliculaDAO.storeMovie(new PeliculaRedesign(2, titleField.getText(), directorField.getText(), Integer.parseInt(durationField.getText().trim()), Double.parseDouble(priceField.getText())));
+        int id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
 
-        JOptionPane.showMessageDialog(this,
-                "Película guardada correctamente",
-                "Operación exitosa",
-                JOptionPane.INFORMATION_MESSAGE);
+        PeliculaRedesign nuevaPelicula = new PeliculaRedesign(
+                id,
+                titleField.getText().trim(),
+                directorField.getText().trim(),
+                duracion,
+                precio
+        );
 
-        clearForm();
+        System.out.println(nuevaPelicula.toString());
+
+        boolean success = PeliculaDAO.storeMovie(nuevaPelicula);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this,
+                    "Película guardada correctamente",
+                    "Operación exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            clearForm();
+            System.out.println("Exito");
+            if (mainWindow != null) {
+                mainWindow.showMainPanel();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Error al guardar la película",
+                    "Error de operación",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void cancelAction() {

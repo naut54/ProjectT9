@@ -90,9 +90,9 @@ public class Pelicula {
         return dao.updateObject(movie);
     }
 
-    public boolean deleteMovie(Pelicula movie) {
-        return dao.deleteObject(movie);
-    }
+    //public boolean deleteMovie(Pelicula movie) {
+    //    return dao.deleteObject(movie);
+    //}
 
     public Pelicula getMovieById(int id) {
         ObjectSet<Pelicula> result = dao.retrieveWithCondition(Pelicula.class, new Predicate<Pelicula>() {

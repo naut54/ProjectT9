@@ -3,6 +3,10 @@ package data;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 import com.db4o.query.Predicate;
+import models.PeliculaRedesign;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataAccessObject {
     private static ObjectContainer db = DBConnection.connect();
@@ -133,40 +137,106 @@ public class DataAccessObject {
     }
 
     /**
-     * Deletes the specified object from the database. If the database connection is not
-     * established or has been closed, attempts to reconnect before proceeding. Commits
-     * the transaction upon successful deletion or rolls back the transaction in case of
-     * failure.
+     * Deletes the specified PeliculaRedesign object from the database based on its ID.
+     * If the database connection is not established or has been closed, attempts to reconnect before proceeding.
      *
-     * @param object the object to be deleted from the database; must not be null
+     * @param pelicula the PeliculaRedesign object to be deleted from the database; must not be null
      * @return true if the object is successfully deleted, false otherwise
      */
-    public boolean deleteObject(Object object) {
-        if (object == null) {
-            System.err.println("Cannot delete null object");
+    public boolean deleteObject(PeliculaRedesign pelicula) {
+        if (pelicula == null) {
+            System.err.println("No se puede eliminar una película nula");
             return false;
         }
 
+        int idBuscado = pelicula.getId();
+
         if (db == null || db.ext().isClosed()) {
             if (!DBConnection.reConnect()) {
-                System.err.println("Failed to connect to database");
+                System.err.println("Error al conectar con la base de datos");
                 return false;
             }
             db = DBConnection.connect();
         }
 
         try {
-            db.ext().delete(object);
-            db.commit();
-            return true;
+            ObjectSet<PeliculaRedesign> result = db.query(new Predicate<PeliculaRedesign>() {
+                public boolean match(PeliculaRedesign p) {
+                    return p.getId() == idBuscado;
+                }
+            });
+
+            if (result.hasNext()) {
+                PeliculaRedesign peliculaToDelete = result.next();
+                db.delete(peliculaToDelete);
+                db.commit();
+                return true;
+            } else {
+                System.err.println("No se encontró película con ID: " + idBuscado);
+                return false;
+            }
         } catch (Exception e) {
             try {
                 db.rollback();
-                System.err.println("Failed to delete object: " + e.getMessage());
+                System.err.println("Error al eliminar objeto: " + e.getMessage());
             } catch (Exception ex) {
-                System.err.println("Failed to rollback transaction: " + ex.getMessage());
+                System.err.println("Error al hacer rollback: " + ex.getMessage());
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Recupera todos los objetos de un tipo específico.
+     */
+    public <T> List<T> retrieveAllObjects(Class<T> clazz) {
+        if (db == null) {
+            if (!DBConnection.reConnect()) {
+                return new ArrayList<>();
             }
         }
-        return false;
+
+        try {
+            List<T> results = new ArrayList<>();
+            ObjectSet<T> queryResults = db.query(clazz);
+
+            while (queryResults.hasNext()) {
+                results.add(queryResults.next());
+            }
+
+            return results;
+        } catch (Exception e) {
+            System.err.println("Error al recuperar objetos: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Recupera objetos por el valor de un campo específico
+     */
+    public <T> List<T> retrieveByFieldValue(Class<T> clazz, String fieldName, Object value) {
+        if (db == null) {
+            if (!DBConnection.reConnect()) {
+                return new ArrayList<>();
+            }
+        }
+
+        try {
+            com.db4o.query.Query query = db.query();
+            query.constrain(clazz);
+            query.descend(fieldName).constrain(value);
+
+            List<T> results = new ArrayList<>();
+            ObjectSet<T> queryResults = query.execute();
+
+            while (queryResults.hasNext()) {
+                results.add(queryResults.next());
+            }
+
+            return results;
+        } catch (Exception e) {
+            System.err.println("Error al recuperar objetos por campo: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 }

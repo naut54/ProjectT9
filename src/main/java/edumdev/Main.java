@@ -1,6 +1,7 @@
 package edumdev;
 
 import gui.MainWindow;
+
 import javax.swing.*;
 
 public class Main {
