@@ -12,22 +12,46 @@ public class PeliculaDAO {
         dao = new DataAccessObject();
     }
 
+    /**
+     * Stores the specified movie in the database.
+     *
+     * @param movie the {@code PeliculaRedesign} object to be stored; must not be null
+     * @return true if the movie is successfully stored in the database, false otherwise
+     */
     public static boolean storeMovie(PeliculaRedesign movie) {
         return dao.storeObject(movie);
     }
 
+    /**
+     * Updates the details of a given movie in the database.
+     *
+     * @param movie the {@code PeliculaRedesign} object containing the updated movie details; must not be null
+     * @return true if the movie is successfully updated in the database, false otherwise
+     */
     public boolean updateMovie(PeliculaRedesign movie) {
         return dao.updateObject(movie);
     }
 
+    /**
+     * Deletes the specified movie from the database.
+     *
+     * @param movie the {@code PeliculaRedesign} object to be deleted; must not be null
+     * @return true if the movie is successfully deleted, false otherwise
+     */
     public boolean deleteMovie(PeliculaRedesign movie) {
         return dao.deleteObject(movie);
     }
 
+    /**
+     * Searches for a PeliculaRedesign object by its unique identifier.
+     *
+     * @param id the unique identifier of the PeliculaRedesign to search for
+     * @return the PeliculaRedesign object with the specified id if found,
+     *         or null if no such object exists
+     */
     public PeliculaRedesign searchById(final int id) {
-        // Usamos consulta SODA en lugar de Predicate
         List<PeliculaRedesign> results = dao.retrieveByFieldValue(PeliculaRedesign.class, "id", id);
-        return !results.isEmpty() ? results.get(0) : null;
+        return !results.isEmpty() ? results.getFirst() : null;
     }
 
     /**

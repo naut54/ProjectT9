@@ -15,7 +15,8 @@ public class PeliculaRedesign {
         TERROR,
         ACCION,
         ROMANCE,
-        AVENTURA
+        AVENTURA,
+        CIENCIA_FICCION
     };
 
     public PeliculaRedesign(int id, String titulo, String director, int duracion, double precio) {

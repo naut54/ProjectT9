@@ -13,7 +13,7 @@ import static utils.Styles.createStyledButton;
 
 public class MainPanel extends JPanel {
     private final String[] columnNames = {
-            "Código", "Titulo", "Precio Entrada", "Categoria"
+            "Código", "Titulo", "Precio Entrada"
     };
     private JPanel quickAccessPanel;
     private JPanel buttonsPanel;
@@ -80,7 +80,7 @@ public class MainPanel extends JPanel {
                 {"Alta Pelicula", (Runnable) () -> mainWindow.showPanel("addMovie")},
                 {"Baja Pelicula", (Runnable) this::deleteAction},
                 {"Consultar Peliculas", (Runnable) () -> mainWindow.showPanel("searchMovies")},
-                {"Actualizar Pelicula", (Runnable) () -> mainWindow.showPanel("updateMovie")},
+                {"Actualizar Pelicula", (Runnable) () -> mainWindow.showPanel("updateMovie", getSelectedMovie())},
                 {"Actualizar Datos", (Runnable) this::updateTable},
         };
 
@@ -181,10 +181,6 @@ public class MainPanel extends JPanel {
             }
         });
 
-        for (Object[] row : data) {
-            this.model.addRow(row);
-        }
-
         JScrollPane scrollPane = new JScrollPane(moviesTable);
 
         gbc.gridx = 0;
@@ -230,18 +226,18 @@ public class MainPanel extends JPanel {
         }
     }
 
-    private void getSelectedMovie() {
+    private int getSelectedMovie() {
         int row = moviesTable.getSelectedRow();
         if (row == -1) {
-            return;
+            return 0;
         }
-        model.getValueAt(row, 0);
+        return (int) model.getValueAt(row, 0);
     }
 
-    private boolean deleteMovie(int num) {
+    private void deleteMovie(int num) {
         PeliculaDAO pel = new PeliculaDAO();
         PeliculaRedesign stmt = new PeliculaRedesign(num, null, null, 0, 0);
-        return pel.deleteMovie(stmt);
+        pel.deleteMovie(stmt);
     }
 
     private void layoutPanels() {

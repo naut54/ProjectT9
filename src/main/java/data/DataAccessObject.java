@@ -98,15 +98,6 @@ public class DataAccessObject {
         }
     }
 
-    /**
-     * Updates the specified object within the database. If the database connection
-     * is not established or has been closed, it attempts to reconnect before proceeding.
-     * Commits the transaction if the update is successful, or rolls back the transaction
-     * in case of failure.
-     *
-     * @param object the object to be updated in the database
-     * @return true if the object is successfully updated in the database, false otherwise
-     */
     public boolean updateObject(Object object) {
         if (object == null) {
             System.err.println("Cannot update null object");
@@ -122,7 +113,20 @@ public class DataAccessObject {
         }
 
         try {
-            db.ext().set(object);
+            if (object instanceof PeliculaRedesign pelicula) {
+                PeliculaRedesign template = new PeliculaRedesign(pelicula.getId(), null, null, 0, 0);
+                ObjectSet<PeliculaRedesign> result = db.queryByExample(template);
+
+                if (result.hasNext()) {
+                    PeliculaRedesign existingMovie = result.next();
+                    db.delete(existingMovie);
+                    db.store(pelicula);
+                    db.commit();
+                    return true;
+                }
+            }
+
+            db.store(object);
             db.commit();
             return true;
         } catch (Exception e) {

@@ -62,7 +62,7 @@ public class DBConnection {
         return true;
     }
 
-    public void close() {
+    public static void close() {
         if (db != null) {
             reConnect();
             db = null;

@@ -29,6 +29,7 @@ public class MainWindow extends JFrame {
         contentPanel.add(new MainPanel(this), "mainPanel");
         contentPanel.add(new AddMovie(this), "addMovie");
         contentPanel.add(new SearchMovies(this), "searchMovies");
+        contentPanel.add(new UpdateMovie(this), "updateMovie");
 
         cardLayout.show(contentPanel, "mainPanel");
         pack();
@@ -39,6 +40,12 @@ public class MainWindow extends JFrame {
             for (Component component : contentPanel.getComponents()) {
                 if (panelName.equals(component.getName())) {
                     cardLayout.show(contentPanel, panelName);
+                } else if (panelName.equals("updateMovie") && component instanceof UpdateMovie updateMovie) {
+                    int id = 2;
+                    if (args.length == 1) {
+                        id = (int) args[0];
+                    }
+                    updateMovie.setMovieToUpdate(id);
                 }
             }
         }
